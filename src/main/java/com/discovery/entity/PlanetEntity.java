@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +14,6 @@ import javax.persistence.GeneratedValue;
 @Entity
 public class PlanetEntity {
     @javax.persistence.Id
-    @GeneratedValue
     private Long routeId;
 
     private String origin;

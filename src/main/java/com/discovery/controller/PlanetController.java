@@ -4,6 +4,7 @@ import com.discovery.entity.PlanetEntity;
 import com.discovery.mapper.PlanetMapper;
 import com.discovery.model.PlanetModel;
 import com.discovery.repository.PlanetRepository;
+import com.discovery.service.PlanetService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -23,41 +24,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 public class PlanetController {
-    private final PlanetMapper planetMapper;
-    private final PlanetRepository planetRepository;
+    private final PlanetService planetService;
 
     @PostMapping("/import")
     public void importFile(@RequestParam("file") MultipartFile file) throws IOException {
-        XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
-        XSSFSheet worksheet = workbook.getSheetAt(2);
-
-        List<PlanetEntity> newPlanetList = new ArrayList<>();
-
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-            XSSFRow row = worksheet.getRow(i);
-            newPlanetList.add(PlanetEntity.builder()
-                    .origin(row.getCell(1).getStringCellValue())
-                    .destination(row.getCell(2).getStringCellValue())
-                    .build());
-        }
-
-        planetRepository.saveAll(newPlanetList);
+        List<PlanetEntity> planets = planetService.getPlanets(file);
+        planetService.persistPlanets(planets);
     }
 
     @GetMapping
     public List<PlanetModel> getAll() {
-        List<PlanetModel> planetModelList = new ArrayList<>();
-        planetRepository.findAll().forEach(x -> {
-            planetModelList.add(planetMapper.entityToModel(x));
-        });
-        return planetModelList;
-    }
-
-    @PostMapping
-    public void insertRecord() {
-        PlanetEntity newPlanetEntity = new PlanetEntity();
-        newPlanetEntity.setOrigin("A");
-        newPlanetEntity.setDestination("B");
-        planetRepository.save(newPlanetEntity);
+        return planetService.getAllPlanets();
     }
 }
