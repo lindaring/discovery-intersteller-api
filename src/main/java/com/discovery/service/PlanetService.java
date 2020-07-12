@@ -2,7 +2,7 @@ package com.discovery.service;
 
 import com.discovery.entity.PlanetEntity;
 import com.discovery.mapper.PlanetMapper;
-import com.discovery.model.PlanetModel;
+import com.discovery.dto.PlanetDto;
 import com.discovery.repository.PlanetRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -25,15 +25,15 @@ public class PlanetService {
     private final PlanetRepository planetRepository;
     private final PlanetMapper planetMapper;
 
-    public List<PlanetEntity> getPlanets(MultipartFile file) throws IOException {
+    public List<PlanetDto> getPlanetsFromFile(MultipartFile file) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
         XSSFSheet worksheet = workbook.getSheetAt(TRAFFIC_SHEET_INDEX);
 
-        List<PlanetEntity> planets = new ArrayList<>();
+        List<PlanetDto> planets = new ArrayList<>();
 
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             XSSFRow row = worksheet.getRow(i);
-            planets.add(PlanetEntity.builder()
+            planets.add(PlanetDto.builder()
                     .routeId((long) row.getCell(ROUTE_ID_INDEX).getNumericCellValue())
                     .origin(row.getCell(ORIGIN_INDEX).getStringCellValue())
                     .destination(row.getCell(DESTINATION_INDEX).getStringCellValue())
@@ -42,13 +42,15 @@ public class PlanetService {
         return planets;
     }
 
-    public void persistPlanets(List<PlanetEntity> planets) {
-        planetRepository.saveAll(planets);
+    public void persistPlanets(List<PlanetDto> planets) {
+        List<PlanetEntity> entities = new ArrayList<>();
+        planets.forEach(p -> entities.add(planetMapper.dtoToEntity(p)));
+        planetRepository.saveAll(entities);
     }
 
-    public List<PlanetModel> getAllPlanets() {
-        List<PlanetModel> planets = new ArrayList<>();
-        planetRepository.findAll().forEach(x -> planets.add(planetMapper.entityToModel(x)));
+    public List<PlanetDto> getAllPlanets() {
+        List<PlanetDto> planets = new ArrayList<>();
+        planetRepository.findAll().forEach(x -> planets.add(planetMapper.entityToDto(x)));
         return planets;
     }
 
