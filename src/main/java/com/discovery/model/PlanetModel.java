@@ -1,6 +1,9 @@
-package com.discovery.dto;
+package com.discovery.model;
 
-public class PlanetDto {
+import lombok.Data;
+
+@Data
+public class PlanetModel {
     private Long routeId;
     private String origin;
     private String destination;
