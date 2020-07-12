@@ -7,7 +7,7 @@ import javax.persistence.GeneratedValue;
 
 @Data
 @Entity
-public class Planet {
+public class PlanetEntity {
     @javax.persistence.Id
     @GeneratedValue
     private Long routeId;
