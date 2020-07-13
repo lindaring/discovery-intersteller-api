@@ -27,7 +27,8 @@ public class SwaggerConfig {
     private Predicate<String> postPaths() {
         return or(
                 regex("/interstellar/planets.*"),
-                regex("/interstellar/files.*")
+                regex("/interstellar/files.*"),
+                regex("/interstellar/routes.*")
         );
     }
 
