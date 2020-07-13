@@ -14,32 +14,34 @@ import java.util.stream.Collectors;
 public class RouteService {
     private final PlanetService planetService;
 
-    public void calculateShortest() {
+    public void calculateShortest(String origin, String destination) {
         List<PlanetDto> planets = planetService.getAllPlanets();
 
-        String origin = "A";
-        String destination = "Z";
-        StringBuilder results = new StringBuilder("A");
+        StringBuilder results = new StringBuilder();
+        results.append(origin);
 
-        List<String> outerDestinations = getDestinations(planets, origin);
-
-        for (String outerDestination : outerDestinations) {
-            results.append(",").append(outerDestination);
-
-            getInnerDestination(planets, outerDestination, results);
-        }
+        getInnerDestination(planets, origin, destination, results);
     }
 
-    public void getInnerDestination(List<PlanetDto> planets, String outerDestination, StringBuilder results) {
-        List<String> innerDestinations = getDestinations(planets, outerDestination);
+    public void getInnerDestination(List<PlanetDto> planets, String origin, String end, StringBuilder results) {
+        List<String> innerDestinations = getDestinations(planets, origin);
+
         for (String innerDestination : innerDestinations) {
-            if (!outerDestination.equals(innerDestination)) {
-                results.append(",").append(innerDestination);
-                getInnerDestination(planets, innerDestination, results);
+            if (origin.equals(innerDestination)) {
+                break;
             }
+            results.append(",").append(innerDestination);
+            if (end.equals(innerDestination)) {
+                break;
+            }
+            getInnerDestination(planets, innerDestination, end, results);
         }
-        log.info(results.toString());
-        results.delete(results.length() - (outerDestination.length() + 1), results.length());
+
+        if (end.equals(results.substring(results.length() - origin.length(), results.length()))) {
+            log.info(results.toString());
+        }
+
+        results.delete(results.length() - (origin.length() + 1), results.length());
     }
 
     public List<String> getDestinations(List<PlanetDto> planets, String origin) {
