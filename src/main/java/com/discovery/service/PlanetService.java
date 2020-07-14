@@ -6,12 +6,14 @@ import com.discovery.exception.PlanetNotFound;
 import com.discovery.mapper.PlanetMapper;
 import com.discovery.repository.PlanetRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PlanetService {
@@ -19,9 +21,38 @@ public class PlanetService {
     private final PlanetMapper planetMapper;
 
     public void persistPlanets(List<PlanetDto> planets) {
-        List<PlanetEntity> entities = new ArrayList<>();
-        planets.forEach(p -> entities.add(planetMapper.dtoToEntity(p)));
-        planetRepository.saveAll(entities);
+        planets.forEach(p -> {
+            log.info("Persisting {} {} ...", p.getOrigin(), p.getDestination());
+
+            // Ensure uppercase
+            p.setOrigin(p.getOrigin().toUpperCase());
+            p.setDestination(p.getDestination().toUpperCase());
+
+            if (!p.getOrigin().equals(p.getDestination())) { // Avoid storing broken data
+                //The parent
+                PlanetEntity source = planetRepository
+                        .findByShortName(p.getOrigin())
+                        .stream()
+                        .findFirst()
+                        .orElse(PlanetEntity.builder()
+                                .shortName(p.getOrigin())
+                                .build());
+
+                // The child
+                PlanetEntity destination = planetRepository
+                        .findByShortName(p.getDestination())
+                        .stream()
+                        .findFirst()
+                        .orElse(PlanetEntity.builder()
+                                .shortName(p.getOrigin())
+                                .parent(source)
+                                .build());
+
+                // Persist parent first
+                planetRepository.save(source);
+                planetRepository.save(destination);
+            }
+        });
     }
 
     public List<PlanetDto> getAllPlanets() {
@@ -53,8 +84,9 @@ public class PlanetService {
 
     public boolean updatePlanet(PlanetDto planetDto) throws PlanetNotFound {
         PlanetEntity planetEntity = getPlanetEntity(planetDto.getRouteId());
-        planetEntity.setOrigin(planetDto.getOrigin());
-        planetEntity.setDestination(planetDto.getDestination());
+        //Todo
+        //planetEntity.setOrigin(planetDto.getOrigin());
+        //planetEntity.setDestination(planetDto.getDestination());
         planetRepository.save(planetEntity);
         return true;
     }
