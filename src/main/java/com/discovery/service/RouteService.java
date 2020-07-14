@@ -1,10 +1,13 @@
 package com.discovery.service;
 
 import com.discovery.dto.PlanetDto;
+import com.discovery.dto.Route;
+import com.discovery.dto.Routes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,34 +17,39 @@ import java.util.stream.Collectors;
 public class RouteService {
     private final PlanetService planetService;
 
-    public void calculateShortest(String origin, String destination) {
+    public Routes calculateShortest(String origin, String destination) {
         List<PlanetDto> planets = planetService.getAllPlanets();
 
-        StringBuilder results = new StringBuilder();
-        results.append(origin);
+        Routes routes = new Routes();
+        List<String> tempRoute = new ArrayList<>();
+        tempRoute.add(origin);
 
-        getInnerDestination(planets, origin, destination, results);
+        getRoutes(planets, origin, destination, tempRoute, routes);
+        return routes;
     }
 
-    public void getInnerDestination(List<PlanetDto> planets, String origin, String end, StringBuilder results) {
-        List<String> innerDestinations = getDestinations(planets, origin);
+    public void getRoutes(List<PlanetDto> planets, String origin, String end, List<String> tempRoute, Routes routes) {
+        List<String> destinations = getDestinations(planets, origin);
 
-        for (String innerDestination : innerDestinations) {
-            if (origin.equals(innerDestination)) {
+        for (String dest : destinations) {
+            if (origin.equals(dest)) {
                 break;
             }
-            results.append(",").append(innerDestination);
-            if (end.equals(innerDestination)) {
+            tempRoute.add(dest);
+            if (end.equals(dest)) {
                 break;
             }
-            getInnerDestination(planets, innerDestination, end, results);
+            getRoutes(planets, dest, end, tempRoute, routes);
         }
 
-        if (end.equals(results.substring(results.length() - origin.length(), results.length()))) {
-            log.info(results.toString());
+        if (end.equals(tempRoute.get(tempRoute.size() - 1))) {
+            Route routeCopy = Route.builder()
+                    .route(new ArrayList<>(tempRoute)) // To avoid adding refs to final array
+                    .build();
+            routes.getRouteList().add(routeCopy);
         }
 
-        results.delete(results.length() - (origin.length() + 1), results.length());
+        tempRoute.remove(tempRoute.get(tempRoute.size() - 1));
     }
 
     public List<String> getDestinations(List<PlanetDto> planets, String origin) {
