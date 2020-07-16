@@ -3,10 +3,10 @@ package com.discovery.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
 public class Route {
-    private List<String> route;
+    private Set<String> route;
 }
