@@ -1,5 +1,6 @@
 package com.discovery.controller;
 
+import com.discovery.dto.Planet;
 import com.discovery.dto.PlanetDto;
 import com.discovery.exception.PlanetNotFound;
 import com.discovery.service.FileService;
@@ -26,7 +27,7 @@ public class PlanetController {
     private final PlanetService planetService;
 
     @GetMapping
-    public List<PlanetDto> getAllPlanets() {
+    public List<Planet> getAllPlanets() {
         return planetService.getAllPlanets();
     }
 

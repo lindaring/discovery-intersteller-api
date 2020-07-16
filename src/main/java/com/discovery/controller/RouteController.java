@@ -1,6 +1,7 @@
 package com.discovery.controller;
 
 import com.discovery.dto.Routes;
+import com.discovery.dto.SearchParams;
 import com.discovery.service.RouteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,9 @@ public class RouteController {
     @GetMapping("/{origin}/{destination}")
     public Routes getShortestRoutes(@PathVariable("origin") String origin,
                                     @PathVariable("destination") String destination) {
-        return routeService.calculateShortest(origin, destination);
+        return routeService.calculateShortest(SearchParams.builder()
+                .origin(origin.toUpperCase())
+                .destination(destination.toUpperCase())
+                .build());
     }
 }

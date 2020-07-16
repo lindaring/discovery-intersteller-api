@@ -1,5 +1,6 @@
 package com.discovery.service;
 
+import com.discovery.dto.Planet;
 import com.discovery.dto.PlanetDto;
 import com.discovery.entity.PlanetEntity;
 import com.discovery.exception.PlanetNotFound;
@@ -9,9 +10,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,6 +40,8 @@ public class PlanetService {
                         .findFirst()
                         .orElse(PlanetEntity.builder()
                                 .shortName(p.getOrigin())
+                                .children(new HashSet<>())
+                                .parents(new HashSet<>())
                                 .build());
 
                 // The child
@@ -44,20 +50,37 @@ public class PlanetService {
                         .stream()
                         .findFirst()
                         .orElse(PlanetEntity.builder()
-                                .shortName(p.getOrigin())
-                                .parent(source)
+                                .shortName(p.getDestination())
                                 .build());
+
+                // Keep linked children
+                source.getChildren().add(destination);
 
                 // Persist parent first
                 planetRepository.save(source);
-                planetRepository.save(destination);
             }
         });
     }
 
-    public List<PlanetDto> getAllPlanets() {
-        List<PlanetDto> planets = new ArrayList<>();
-        planetRepository.findAll().forEach(x -> planets.add(planetMapper.entityToDto(x)));
+    public Planet getPlanet(String shortName) {
+        return planetRepository.findByShortName(shortName)
+                .stream()
+                .findFirst()
+                .map(entity -> Planet.builder()
+                        .routeId(entity.getRouteId())
+                        .shortName(entity.getShortName())
+                        .children(entity.getChildren()
+                                .stream()
+                                .map(child -> getPlanet(child.getShortName()))
+                                .collect(Collectors.toSet()))
+                        .build())
+                .orElse(new Planet());
+    }
+
+    public List<Planet> getAllPlanets() {
+        List<Planet> planets = new ArrayList<>();
+        planetRepository.findAll()
+                .forEach(p -> planets.add(planetMapper.entityToDto(p)));
         return planets;
     }
 
@@ -68,7 +91,8 @@ public class PlanetService {
 
     public PlanetDto getPlanet(long routeId) throws PlanetNotFound {
         PlanetEntity planetEntity = getPlanetEntity(routeId);
-        return planetMapper.entityToDto(planetEntity);
+        //return planetMapper.entityToDto(planetEntity);
+        return new PlanetDto();
     }
 
     public boolean insertPlanet(PlanetDto planetDto) {
