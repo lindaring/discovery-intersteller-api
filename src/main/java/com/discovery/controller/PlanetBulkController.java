@@ -1,6 +1,6 @@
 package com.discovery.controller;
 
-import com.discovery.dto.PlanetDto;
+import com.discovery.dto.PlanetImport;
 import com.discovery.service.PlanetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,7 @@ public class PlanetBulkController {
     private final PlanetService planetService;
 
     @PostMapping
-    public boolean addPlanetBulk(@RequestBody List<PlanetDto> planets) {
+    public boolean addPlanetBulk(@RequestBody List<PlanetImport> planets) {
         return planetService.insertPlanetBulk(planets);
     }
 }

@@ -1,7 +1,7 @@
 package com.discovery.controller;
 
 import com.discovery.dto.Planet;
-import com.discovery.dto.PlanetDto;
+import com.discovery.dto.PlanetImport;
 import com.discovery.exception.PlanetNotFound;
 import com.discovery.service.FileService;
 import com.discovery.service.PlanetService;
@@ -32,18 +32,18 @@ public class PlanetController {
     }
 
     @GetMapping("/{id}")
-    public PlanetDto getPlanet(@PathVariable("id") long id) throws PlanetNotFound {
+    public PlanetImport getPlanet(@PathVariable("id") long id) throws PlanetNotFound {
         return planetService.getPlanet(id);
     }
 
     @PostMapping
-    public boolean addPlanet(@RequestBody PlanetDto planetDto) {
-        return planetService.insertPlanet(planetDto);
+    public boolean addPlanet(@RequestBody PlanetImport PlanetImport) {
+        return planetService.insertPlanet(PlanetImport);
     }
 
     @PutMapping
-    public boolean updatePlanet(@RequestBody PlanetDto planetDto) throws PlanetNotFound {
-        return planetService.updatePlanet(planetDto);
+    public boolean updatePlanet(@RequestBody PlanetImport PlanetImport) throws PlanetNotFound {
+        return planetService.updatePlanet(PlanetImport);
     }
 
     @DeleteMapping("/{id}")

@@ -6,9 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,36 +24,17 @@ import java.util.Set;
 public class PlanetEntity {
     @Id
     @GeneratedValue
-    @Column(name = "route_id", nullable = false, unique = true)
     private Long routeId;
 
     private String shortName;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name="planet_destination",
-        joinColumns=@JoinColumn(name="origin_id"),
-        inverseJoinColumns=@JoinColumn(name="destination_id"))
-    private Set<PlanetEntity> parents = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_parent")
+    private PlanetDestinationEntity parent;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name="planet_destination",
-        joinColumns=@JoinColumn(name="destination_id"),
-        inverseJoinColumns=@JoinColumn(name="origin_id"))
-    private Set<PlanetEntity> children = new HashSet<>();
-
-    public Set<PlanetEntity> getChildren() {
-        if (children == null) {
-            children = new HashSet<>();
-        }
-        return children;
-    }
-
-    public Set<PlanetEntity> getParents() {
-        if (parents == null) {
-            parents = new HashSet<>();
-        }
-        return parents;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_child")
+    private PlanetDestinationEntity child;
 
     @Override
     public String toString() {
