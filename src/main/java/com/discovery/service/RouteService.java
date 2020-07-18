@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,20 +23,22 @@ public class RouteService {
         Planet planet = planetService.getPlanetWithDestinations(searchParams.getOrigin());
 
         Routes routes = new Routes();
-        Set<String> tempRoute = new LinkedHashSet<>();
-        tempRoute.add(searchParams.getOrigin());
+        Map<String, Double> tempRoute = new LinkedHashMap<>();
+        tempRoute.put(planet.getShortName(), planet.getDistanceFromParent());
 
-        getRoutes(planet, searchParams, tempRoute, routes);
+        determinePossibleRoutes(planet, searchParams, tempRoute, routes);
+        identifyShortestRoute(routes);
+
         return routes;
     }
 
-    public void getRoutes(Planet planet, SearchParams params, Set<String> temp, Routes routes) {
+    public void determinePossibleRoutes(Planet planet, SearchParams params, Map<String, Double> temp, Routes routes) {
         for (Planet dest : planet.getChildren()) {  // Loop through destinations
-            temp.add(dest.getShortName());
+            temp.put(dest.getShortName(), dest.getDistanceFromParent());
             if (isDesiredDestination(dest.getShortName(), params.getDestination())) {
-                routes.getRouteList().add(Route.builder().route(new LinkedHashSet<>(temp)).build()); // Add route if it gets to the desired destination
+                recordPossibleRoute(temp, routes);
             } else if (!isEndReached(dest)) {
-                getRoutes(dest, params, temp, routes);
+                determinePossibleRoutes(dest, params, temp, routes);
             }
             temp.remove(dest.getShortName());
         }
@@ -49,4 +53,18 @@ public class RouteService {
                 || currentPosition.getChildren().isEmpty();
     }
 
+    private void recordPossibleRoute(Map<String, Double> temp, Routes routes) { // Add route if it gets to the desired destination
+        routes.getRouteList()
+                .add(Route.builder()
+                        .route(new LinkedHashSet<>(temp.keySet()))
+                        .distance(temp.values().stream().mapToDouble(d -> d).sum())
+                        .build());
+    }
+
+    private void identifyShortestRoute(Routes routes) {
+        routes.getRouteList()
+                .stream()
+                .min(Comparator.comparingDouble(Route::getDistance))
+                .ifPresent(x -> x.setShortest(true));
+    }
 }

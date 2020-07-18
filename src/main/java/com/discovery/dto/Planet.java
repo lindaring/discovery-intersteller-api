@@ -16,6 +16,7 @@ public class Planet {
     private Long planetId;
     private String shortName;
     private Planet parent;
+    private double distanceFromParent;
     private Set<Planet> children = new HashSet<>();
 
     @Override

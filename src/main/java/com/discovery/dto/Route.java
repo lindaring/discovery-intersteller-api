@@ -9,4 +9,6 @@ import java.util.Set;
 @Builder
 public class Route {
     private Set<String> route;
+    private double distance;
+    private boolean isShortest;
 }

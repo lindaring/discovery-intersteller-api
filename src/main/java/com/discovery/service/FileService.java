@@ -23,6 +23,7 @@ public class FileService {
     private static final int ORIGIN_COLUMN_INDEX = 1;
     private static final int DESTINATION_COLUMN_INDEX = 2;
     private static final int TRAFFIC_COLUMN_INDEX = 2;
+    private static final int DISTANCE_COLUMN_INDEX = 3;
 
     private final PlanetService planetService;
 
@@ -38,6 +39,7 @@ public class FileService {
                     .routeId((long) row.getCell(ROUTE_ID_COLUMN_INDEX).getNumericCellValue())
                     .origin(row.getCell(ORIGIN_COLUMN_INDEX).getStringCellValue())
                     .destination(row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue())
+                    .distance(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue())
                     .build());
         }
         return planets;

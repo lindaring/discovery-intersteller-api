@@ -53,7 +53,7 @@ public class PlanetService {
                                 .build());
 
                 RouteEntity route = RouteEntity.builder()
-                        .distance(100.0)
+                        .distance(p.getDistance())
                         .source(sourcePlanet)
                         .destination(destinationPlant)
                         .build();
@@ -128,6 +128,7 @@ public class PlanetService {
             Planet child = Planet.builder()
                     .planetId(routeEntity.getDestination().getPlanetId())
                     .shortName(routeEntity.getDestination().getShortName())
+                    .distanceFromParent(routeEntity.getDistance())
                     .parent(planet)
                     .build();
             children.add(child);
