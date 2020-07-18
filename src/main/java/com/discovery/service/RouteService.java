@@ -18,7 +18,7 @@ public class RouteService {
     private final PlanetService planetService;
 
     public Routes calculateShortest(SearchParams searchParams) {
-        Planet planet = planetService.getPlanet(searchParams.getOrigin());
+        Planet planet = planetService.getPlanetWithDestinations(searchParams.getOrigin());
 
         Routes routes = new Routes();
         Set<String> tempRoute = new LinkedHashSet<>();
@@ -31,17 +31,22 @@ public class RouteService {
     public void getRoutes(Planet planet, SearchParams params, Set<String> temp, Routes routes) {
         for (Planet dest : planet.getChildren()) {  // Loop through destinations
             temp.add(dest.getShortName());
-            if (isEndReached(dest.getShortName(), params.getDestination())) {
-                routes.getRouteList().add(Route.builder().route(temp).build()); // Add route if it gets to the desired destination
-            } else {
+            if (isDesiredDestination(dest.getShortName(), params.getDestination())) {
+                routes.getRouteList().add(Route.builder().route(new LinkedHashSet<>(temp)).build()); // Add route if it gets to the desired destination
+            } else if (!isEndReached(dest)) {
                 getRoutes(dest, params, temp, routes);
             }
             temp.remove(dest.getShortName());
         }
     }
 
-    private boolean isEndReached(String currentPosition, String endDestination) {
+    private boolean isDesiredDestination(String currentPosition, String endDestination) {
         return endDestination.equals(currentPosition);
+    }
+
+    private boolean isEndReached(Planet currentPosition) {
+        return currentPosition.getChildren() == null
+                || currentPosition.getChildren().isEmpty();
     }
 
 }

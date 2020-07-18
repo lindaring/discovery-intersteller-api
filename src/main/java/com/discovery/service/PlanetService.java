@@ -3,25 +3,30 @@ package com.discovery.service;
 import com.discovery.dto.Planet;
 import com.discovery.dto.PlanetImport;
 import com.discovery.entity.PlanetEntity;
+import com.discovery.entity.RouteEntity;
 import com.discovery.exception.PlanetNotFound;
 import com.discovery.mapper.PlanetMapper;
 import com.discovery.repository.PlanetRepository;
+import com.discovery.repository.RouteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class PlanetService {
     private final PlanetRepository planetRepository;
+    private final RouteRepository routeRepository;
     private final PlanetMapper planetMapper;
 
     public void persistPlanets(List<PlanetImport> planets) {
-        /*planets.forEach(p -> {
+        planets.forEach(p -> {
             log.info("Persisting {} {} ...", p.getOrigin(), p.getDestination());
 
             // Ensure uppercase
@@ -30,7 +35,7 @@ public class PlanetService {
 
             if (!p.getOrigin().equals(p.getDestination())) { // Avoid storing broken data
                 //The parent
-                PlanetEntity source = planetRepository
+                PlanetEntity sourcePlanet = planetRepository
                         .findByShortName(p.getOrigin())
                         .stream()
                         .findFirst()
@@ -39,13 +44,33 @@ public class PlanetService {
                                 .build());
 
                 // The child
-                PlanetEntity destination = planetRepository
+                PlanetEntity destinationPlant = planetRepository
                         .findByShortName(p.getDestination())
                         .stream()
                         .findFirst()
                         .orElse(PlanetEntity.builder()
                                 .shortName(p.getDestination())
                                 .build());
+
+                RouteEntity route = RouteEntity.builder()
+                        .distance(100.0)
+                        .source(sourcePlanet)
+                        .destination(destinationPlant)
+                        .build();
+
+                sourcePlanet.setDestinations(getSourceDestination(route));
+
+                planetRepository.save(sourcePlanet);
+                planetRepository.save(destinationPlant);
+                routeRepository.save(route);
+            }
+        });
+
+        log.info("s");
+
+        /*planets.forEach(p -> {
+
+            if (!p.getOrigin().equals(p.getDestination())) { // Avoid storing broken data
 
                 // Keep linked children
                 Set<PlanetEntity> parents = new HashSet<>();
@@ -71,12 +96,18 @@ public class PlanetService {
         });*/
     }
 
-    public Planet getPlanet(String shortName) {
-        /*planetDestinationRepository.findAll()
-            .forEach(pd -> {
-                log.info(pd.getParents() == null ? "yes" : "no");
-            });*/
-        return null;
+    private Set<RouteEntity> getSourceDestination(RouteEntity route) {
+        Set<RouteEntity> routeList = new HashSet<>();
+        routeList.add(route);
+        return routeList;
+    }
+
+    public Planet getPlanetWithDestinations(String shortName) {
+        Set<RouteEntity> routes = routeRepository.findBySource_ShortName(shortName);
+        Planet planet = new Planet();
+        planet.setShortName(shortName);
+        setDestinations(routes, planet);
+        return planet;
         /*return planetRepository.findByShortName(shortName)
                 .stream()
                 .findFirst()
@@ -89,6 +120,22 @@ public class PlanetService {
                                 .collect(Collectors.toSet()))
                         .build())
                 .orElse(new Planet());*/
+    }
+
+    public void setDestinations(Set<RouteEntity> routes, Planet planet) {
+        Set<Planet> children = new HashSet<>();
+        for (RouteEntity routeEntity : routes) {
+            Planet child = Planet.builder()
+                    .planetId(routeEntity.getDestination().getPlanetId())
+                    .shortName(routeEntity.getDestination().getShortName())
+                    .parent(planet)
+                    .build();
+            children.add(child);
+            if (!routeEntity.getDestination().getSources().isEmpty()) {
+                setDestinations(routeEntity.getDestination().getSources(), child);
+            }
+        }
+        planet.setChildren(children);
     }
 
     public List<Planet> getAllPlanets() {
@@ -104,7 +151,7 @@ public class PlanetService {
         return null;
     }
 
-    public PlanetImport getPlanet(long routeId) throws PlanetNotFound {
+    public PlanetImport getPlanetWithDestinations(long routeId) throws PlanetNotFound {
         PlanetEntity planetEntity = getPlanetEntity(routeId);
         //return planetMapper.entityToDto(planetEntity);
         return new PlanetImport();
@@ -137,7 +184,8 @@ public class PlanetService {
     }
 
     public void purgePlanets() {
-        //planetRepository.deleteAll();
+        routeRepository.deleteAll();
+        planetRepository.deleteAll();
     }
 
 }

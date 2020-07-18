@@ -1,22 +1,12 @@
 package com.discovery.entity;
 
-import com.discovery.dto.Planet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import java.util.Set;
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,11 +26,11 @@ public class RouteEntity {
     private double traffic;
 
     @ManyToOne
-    @MapsId("planet_id")
+    @JoinColumn(referencedColumnName = "planet_id")
     private PlanetEntity source;
 
     @ManyToOne
-    @MapsId("sourceId")
+    @JoinColumn(referencedColumnName = "planet_id")
     private PlanetEntity destination;
 
     @Override

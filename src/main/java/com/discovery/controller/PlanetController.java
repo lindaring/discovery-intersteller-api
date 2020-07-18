@@ -3,7 +3,6 @@ package com.discovery.controller;
 import com.discovery.dto.Planet;
 import com.discovery.dto.PlanetImport;
 import com.discovery.exception.PlanetNotFound;
-import com.discovery.service.FileService;
 import com.discovery.service.PlanetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,11 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RequestMapping("/interstellar/planets")
@@ -33,7 +29,7 @@ public class PlanetController {
 
     @GetMapping("/{id}")
     public PlanetImport getPlanet(@PathVariable("id") long id) throws PlanetNotFound {
-        return planetService.getPlanet(id);
+        return planetService.getPlanetWithDestinations(id);
     }
 
     @PostMapping

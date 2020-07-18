@@ -13,8 +13,16 @@ import java.util.Set;
 @Data
 @Builder
 public class Planet {
-    private Long routeId;
+    private Long planetId;
     private String shortName;
     private Planet parent;
     private Set<Planet> children = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "Planet{" +
+                "routeId=" + planetId +
+                ", shortName='" + shortName + '\'' +
+                '}';
+    }
 }
