@@ -6,6 +6,7 @@ import com.discovery.dto.Routes;
 import com.discovery.dto.SearchParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -23,8 +24,8 @@ public class RouteService {
         Planet planet = planetService.getPlanetWithDestinations(searchParams.getOrigin());
 
         Routes routes = new Routes();
-        Map<String, Double> tempRoute = new LinkedHashMap<>();
-        tempRoute.put(planet.getShortName(), planet.getDistanceFromParent());
+        Map<String, Pair<Double, Double>> tempRoute = new LinkedHashMap<>();
+        tempRoute.put(planet.getShortName(), Pair.of(planet.getDistanceFromParent(), planet.getTrafficFromParent()));
 
         determinePossibleRoutes(planet, searchParams, tempRoute, routes);
         identifyShortestRoute(routes);
@@ -32,9 +33,12 @@ public class RouteService {
         return routes;
     }
 
-    public void determinePossibleRoutes(Planet planet, SearchParams params, Map<String, Double> temp, Routes routes) {
+    public void determinePossibleRoutes(Planet planet,
+                                        SearchParams params,
+                                        Map<String, Pair<Double, Double>> temp,
+                                        Routes routes) {
         for (Planet dest : planet.getChildren()) {  // Loop through destinations
-            temp.put(dest.getShortName(), dest.getDistanceFromParent());
+            temp.put(dest.getShortName(), Pair.of(dest.getDistanceFromParent(), dest.getTrafficFromParent()));
             if (isDesiredDestination(dest.getShortName(), params.getDestination())) {
                 recordPossibleRoute(temp, routes);
             } else if (!isEndReached(dest)) {
@@ -53,11 +57,12 @@ public class RouteService {
                 || currentPosition.getChildren().isEmpty();
     }
 
-    private void recordPossibleRoute(Map<String, Double> temp, Routes routes) { // Add route if it gets to the desired destination
+    private void recordPossibleRoute(Map<String, Pair<Double, Double>> temp, Routes routes) { // Add route if it gets to the desired destination
         routes.getRouteList()
                 .add(Route.builder()
                         .route(new LinkedHashSet<>(temp.keySet()))
-                        .distance(temp.values().stream().mapToDouble(d -> d).sum())
+                        .distance(temp.values().stream().mapToDouble(Pair::getFirst).sum())
+                        .traffic(temp.values().stream().mapToDouble(Pair::getSecond).sum())
                         .build());
     }
 

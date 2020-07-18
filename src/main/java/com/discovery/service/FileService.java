@@ -22,7 +22,7 @@ public class FileService {
     private static final int ROUTE_ID_COLUMN_INDEX = 0;
     private static final int ORIGIN_COLUMN_INDEX = 1;
     private static final int DESTINATION_COLUMN_INDEX = 2;
-    private static final int TRAFFIC_COLUMN_INDEX = 2;
+    private static final int TRAFFIC_COLUMN_INDEX = 3;
     private static final int DISTANCE_COLUMN_INDEX = 3;
 
     private final PlanetService planetService;
@@ -42,11 +42,24 @@ public class FileService {
                     .distance(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue())
                     .build());
         }
+        determineTraffic(file, planets);
         return planets;
     }
 
-    private void getPlanetsDistance() {
+    private void determineTraffic(MultipartFile file, List<PlanetImport> planets) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+        XSSFSheet worksheet = workbook.getSheetAt(TRAFFIC_SHEET_INDEX);
 
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            XSSFRow row = worksheet.getRow(i);
+            String source = row.getCell(ORIGIN_COLUMN_INDEX).getStringCellValue();
+            String destination = row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue();
+
+            planets.stream()
+                .filter(p -> source.equalsIgnoreCase(p.getOrigin()) && destination.equalsIgnoreCase(p.getDestination()))
+                .findFirst()
+                .ifPresent(p -> p.setTraffic(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue()));
+        }
     }
 
     public void importPlanets(MultipartFile file) throws IOException {

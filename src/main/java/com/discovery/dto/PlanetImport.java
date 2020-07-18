@@ -14,4 +14,5 @@ public class PlanetImport {
     private String origin;
     private String destination;
     private double distance;
+    private double traffic;
 }

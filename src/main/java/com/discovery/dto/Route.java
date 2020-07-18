@@ -10,5 +10,7 @@ import java.util.Set;
 public class Route {
     private Set<String> route;
     private double distance;
+    private double traffic;
     private boolean isShortest;
+    private boolean isQuickest;
 }

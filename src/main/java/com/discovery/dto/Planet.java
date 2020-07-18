@@ -17,6 +17,7 @@ public class Planet {
     private String shortName;
     private Planet parent;
     private double distanceFromParent;
+    private double trafficFromParent;
     private Set<Planet> children = new HashSet<>();
 
     @Override
