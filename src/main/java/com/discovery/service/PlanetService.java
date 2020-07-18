@@ -10,22 +10,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class PlanetService {
-    //private final PlanetRepository planetRepository;
+    private final PlanetRepository planetRepository;
     private final PlanetMapper planetMapper;
 
     public void persistPlanets(List<PlanetImport> planets) {
-        planets.forEach(p -> {
+        /*planets.forEach(p -> {
             log.info("Persisting {} {} ...", p.getOrigin(), p.getDestination());
 
             // Ensure uppercase
@@ -34,38 +30,52 @@ public class PlanetService {
 
             if (!p.getOrigin().equals(p.getDestination())) { // Avoid storing broken data
                 //The parent
-//                PlanetEntity source = planetRepository
-//                        .findByShortName(p.getOrigin())
-//                        .stream()
-//                        .findFirst()
-//                        .orElse(PlanetEntity.builder()
-//                                .shortName(p.getOrigin())
-//                                //.distance(p.getDistance())
-//                                //.children(new HashSet<>())
-//                                //.parents(new HashSet<>())
-//                                .build());
-                PlanetEntity source = new PlanetEntity();
+                PlanetEntity source = planetRepository
+                        .findByShortName(p.getOrigin())
+                        .stream()
+                        .findFirst()
+                        .orElse(PlanetEntity.builder()
+                                .shortName(p.getOrigin())
+                                .build());
 
                 // The child
-                PlanetEntity destination = new PlanetEntity();
-                /*PlanetEntity destination = planetRepository
+                PlanetEntity destination = planetRepository
                         .findByShortName(p.getDestination())
                         .stream()
                         .findFirst()
                         .orElse(PlanetEntity.builder()
                                 .shortName(p.getDestination())
-                                .build());*/
+                                .build());
 
                 // Keep linked children
-                //source.getChildren().add(destination);
+                Set<PlanetEntity> parents = new HashSet<>();
+                parents.add(source);
+                PlanetDestinationEntity relationshipP = new PlanetDestinationEntity();
+                relationshipP.setParents(parents);
+                source.setParent(relationshipP);
+
+                Set<PlanetEntity> children = new HashSet<>();
+                children.add(destination);
+                PlanetDestinationEntity relationshipC = new PlanetDestinationEntity();
+                relationshipC.set(parents);
+                source.setParent(relationshipC);
+
+                PlanetDestinationEntity relationship = new PlanetDestinationEntity();
+                relationship.setChildren(children);
 
                 // Persist parent first
-                //planetRepository.save(source);
+                planetRepository.save(source);
+                planetRepository.save(destination);
+                planetDestinationRepository.save(relationship);
             }
-        });
+        });*/
     }
 
     public Planet getPlanet(String shortName) {
+        /*planetDestinationRepository.findAll()
+            .forEach(pd -> {
+                log.info(pd.getParents() == null ? "yes" : "no");
+            });*/
         return null;
         /*return planetRepository.findByShortName(shortName)
                 .stream()
@@ -73,7 +83,7 @@ public class PlanetService {
                 .map(entity -> Planet.builder()
                         .routeId(entity.getRouteId())
                         .shortName(entity.getShortName())
-                        /*.children(entity.getChildren()
+                        .children(entity.getChildren()
                                 .stream()
                                 .map(child -> getPlanet(child.getShortName()))
                                 .collect(Collectors.toSet()))

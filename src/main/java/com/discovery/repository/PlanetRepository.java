@@ -5,7 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Set;
 
-public interface PlanetRepository {
-    //public interface PlanetRepository extends CrudRepository<PlanetEntity, Long> {
+public interface PlanetRepository extends CrudRepository<PlanetEntity, Long> {
     Set<PlanetEntity> findByShortName(String shortName);
 }

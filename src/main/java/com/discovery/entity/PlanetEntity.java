@@ -6,13 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,22 +26,22 @@ import javax.persistence.Table;
 public class PlanetEntity {
     @Id
     @GeneratedValue
-    private Long routeId;
+    @Column(name = "planet_id")
+    private Long planetId;
 
     private String shortName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_parent")
-    private PlanetDestinationEntity parent;
+    private String fullName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_child")
-    private PlanetDestinationEntity child;
+    @OneToMany(mappedBy = "source", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RouteEntity> sources = new HashSet<>();
 
     @Override
     public String toString() {
         return "PlanetEntity{" +
-                "routeId=" + getRouteId() +
-                ", shortName='" + getShortName() + '}';
+                "planetId=" + planetId +
+                ", shortName='" + shortName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                '}';
     }
 }
