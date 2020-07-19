@@ -29,6 +29,7 @@ public class RouteService {
 
         determinePossibleRoutes(planet, searchParams, tempRoute, routes);
         identifyShortestRoute(routes);
+        identifyFastestRoute(routes);
 
         return routes;
     }
@@ -70,6 +71,14 @@ public class RouteService {
         routes.getRouteList()
                 .stream()
                 .min(Comparator.comparingDouble(Route::getDistance))
-                .ifPresent(x -> x.setShortest(true));
+                .ifPresent(route -> route.setShortest(true));
+    }
+
+    private void identifyFastestRoute(Routes routes) {
+        final double SPEED = 7.5;
+        routes.getRouteList()
+                .stream()
+                .min(Comparator.comparingDouble(route -> (route.getDistance() / SPEED) * route.getTraffic()))
+                .ifPresent(route -> route.setQuickest(true));
     }
 }
