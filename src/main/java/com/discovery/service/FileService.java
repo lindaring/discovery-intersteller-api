@@ -24,6 +24,8 @@ public class FileService {
     private static final int DESTINATION_COLUMN_INDEX = 2;
     private static final int TRAFFIC_COLUMN_INDEX = 3;
     private static final int DISTANCE_COLUMN_INDEX = 3;
+    private static final int NODE_COLUMN_INDEX = 0;
+    private static final int NAME_COLUMN_INDEX = 1;
 
     private final PlanetService planetService;
 
@@ -37,12 +39,13 @@ public class FileService {
             XSSFRow row = worksheet.getRow(i);
             planets.add(PlanetImport.builder()
                     .routeId((long) row.getCell(ROUTE_ID_COLUMN_INDEX).getNumericCellValue())
-                    .origin(row.getCell(ORIGIN_COLUMN_INDEX).getStringCellValue())
-                    .destination(row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue())
+                    .originShort(row.getCell(ORIGIN_COLUMN_INDEX).getStringCellValue())
+                    .destinationShort(row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue())
                     .distance(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue())
                     .build());
         }
         determineTraffic(file, planets);
+        determineFullNames(file, planets);
         return planets;
     }
 
@@ -56,9 +59,29 @@ public class FileService {
             String destination = row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue();
 
             planets.stream()
-                .filter(p -> source.equalsIgnoreCase(p.getOrigin()) && destination.equalsIgnoreCase(p.getDestination()))
+                .filter(p -> source.equalsIgnoreCase(p.getOriginShort()) && destination.equalsIgnoreCase(p.getDestinationShort()))
                 .findFirst()
-                .ifPresent(p -> p.setTraffic(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue()));
+                .ifPresent(p -> p.setTraffic(row.getCell(TRAFFIC_COLUMN_INDEX).getNumericCellValue()));
+        }
+    }
+
+    private void determineFullNames(MultipartFile file, List<PlanetImport> planets) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+        XSSFSheet worksheet = workbook.getSheetAt(PLANET_NAME_SHEET_INDEX);
+
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            XSSFRow row = worksheet.getRow(i);
+
+            String node = row.getCell(NODE_COLUMN_INDEX).getStringCellValue();
+            String name = row.getCell(NAME_COLUMN_INDEX).getStringCellValue();
+
+            planets.stream()
+                .filter(p -> node.equalsIgnoreCase(p.getOriginShort()))
+                .forEach(p -> p.setOriginFull(name));
+
+            planets.stream()
+                .filter(p -> node.equalsIgnoreCase(p.getDestinationShort()))
+                .forEach(p -> p.setDestinationFull(name));
         }
     }
 

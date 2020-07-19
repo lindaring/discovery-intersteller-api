@@ -15,6 +15,7 @@ import java.util.Set;
 public class Planet {
     private Long planetId;
     private String shortName;
+    private String fullName;
     private Planet parent;
     private double distanceFromParent;
     private double trafficFromParent;

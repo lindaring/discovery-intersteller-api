@@ -13,15 +13,18 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class RouteService {
     private final PlanetService planetService;
+    private Map<String, String> planetNames;
 
     public Routes calculateShortest(SearchParams searchParams) {
         Planet planet = planetService.getPlanetWithDestinations(searchParams.getOrigin());
+        planetNames = planetService.getPlanetNames();
 
         Routes routes = new Routes();
         Map<String, Pair<Double, Double>> tempRoute = new LinkedHashMap<>();
@@ -61,10 +64,16 @@ public class RouteService {
     private void recordPossibleRoute(Map<String, Pair<Double, Double>> temp, Routes routes) { // Add route if it gets to the desired destination
         routes.getRouteList()
                 .add(Route.builder()
-                        .route(new LinkedHashSet<>(temp.keySet()))
+                        .route(cloneTemp(temp.keySet()))
                         .distance(temp.values().stream().mapToDouble(Pair::getFirst).sum())
                         .traffic(temp.values().stream().mapToDouble(Pair::getSecond).sum())
                         .build());
+    }
+
+    private Map<String, String> cloneTemp(Set<String> temp) {
+        Map<String, String> nodeNames = new LinkedHashMap<>();
+        temp.forEach(t -> nodeNames.put(t, planetNames.get(t)));
+        return nodeNames;
     }
 
     private void identifyShortestRoute(Routes routes) {

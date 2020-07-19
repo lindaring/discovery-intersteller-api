@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class PlanetImport {
     private Long routeId;
-    private String origin;
-    private String destination;
+    private String originShort;
+    private String originFull;
+    private String destinationShort;
+    private String destinationFull;
     private double distance;
     private double traffic;
 }

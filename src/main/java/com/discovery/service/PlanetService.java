@@ -13,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -27,29 +29,31 @@ public class PlanetService {
 
     public void persistPlanets(List<PlanetImport> planets) {
         planets.forEach(p -> {
-            log.info("Persisting {} {} ...", p.getOrigin(), p.getDestination());
+            log.info("Persisting {} {} ...", p.getOriginShort(), p.getDestinationShort());
 
             // Ensure uppercase
-            p.setOrigin(p.getOrigin().toUpperCase());
-            p.setDestination(p.getDestination().toUpperCase());
+            p.setOriginShort(p.getOriginShort().toUpperCase());
+            p.setDestinationShort(p.getDestinationShort().toUpperCase());
 
-            if (!p.getOrigin().equals(p.getDestination())) { // Avoid storing broken data
+            if (!p.getOriginShort().equals(p.getDestinationShort())) { // Avoid storing broken data
                 //The parent
                 PlanetEntity sourcePlanet = planetRepository
-                        .findByShortName(p.getOrigin())
+                        .findByShortName(p.getOriginShort())
                         .stream()
                         .findFirst()
                         .orElse(PlanetEntity.builder()
-                                .shortName(p.getOrigin())
+                                .shortName(p.getOriginShort())
+                                .fullName(p.getOriginFull())
                                 .build());
 
                 // The child
                 PlanetEntity destinationPlant = planetRepository
-                        .findByShortName(p.getDestination())
+                        .findByShortName(p.getDestinationShort())
                         .stream()
                         .findFirst()
                         .orElse(PlanetEntity.builder()
-                                .shortName(p.getDestination())
+                                .shortName(p.getDestinationShort())
+                                .fullName(p.getDestinationFull())
                                 .build());
 
                 RouteEntity route = RouteEntity.builder()
@@ -66,35 +70,6 @@ public class PlanetService {
                 routeRepository.save(route);
             }
         });
-
-        log.info("s");
-
-        /*planets.forEach(p -> {
-
-            if (!p.getOrigin().equals(p.getDestination())) { // Avoid storing broken data
-
-                // Keep linked children
-                Set<PlanetEntity> parents = new HashSet<>();
-                parents.add(source);
-                PlanetDestinationEntity relationshipP = new PlanetDestinationEntity();
-                relationshipP.setParents(parents);
-                source.setParent(relationshipP);
-
-                Set<PlanetEntity> children = new HashSet<>();
-                children.add(destination);
-                PlanetDestinationEntity relationshipC = new PlanetDestinationEntity();
-                relationshipC.set(parents);
-                source.setParent(relationshipC);
-
-                PlanetDestinationEntity relationship = new PlanetDestinationEntity();
-                relationship.setChildren(children);
-
-                // Persist parent first
-                planetRepository.save(source);
-                planetRepository.save(destination);
-                planetDestinationRepository.save(relationship);
-            }
-        });*/
     }
 
     private Set<RouteEntity> getSourceDestination(RouteEntity route) {
@@ -109,18 +84,6 @@ public class PlanetService {
         planet.setShortName(shortName);
         setDestinations(routes, planet);
         return planet;
-        /*return planetRepository.findByShortName(shortName)
-                .stream()
-                .findFirst()
-                .map(entity -> Planet.builder()
-                        .routeId(entity.getRouteId())
-                        .shortName(entity.getShortName())
-                        .children(entity.getChildren()
-                                .stream()
-                                .map(child -> getPlanet(child.getShortName()))
-                                .collect(Collectors.toSet()))
-                        .build())
-                .orElse(new Planet());*/
     }
 
     public void setDestinations(Set<RouteEntity> routes, Planet planet) {
@@ -129,6 +92,7 @@ public class PlanetService {
             Planet child = Planet.builder()
                     .planetId(routeEntity.getDestination().getPlanetId())
                     .shortName(routeEntity.getDestination().getShortName())
+                    .fullName(routeEntity.getDestination().getFullName())
                     .distanceFromParent(routeEntity.getDistance())
                     .trafficFromParent(routeEntity.getTraffic())
                     .parent(planet)
@@ -191,4 +155,10 @@ public class PlanetService {
         planetRepository.deleteAll();
     }
 
+    public Map<String, String> getPlanetNames() {
+        Map<String, String> names = new HashMap<>();
+        planetRepository.findAll()
+            .forEach(p -> names.put(p.getShortName(), p.getFullName()));
+        return names;
+    }
 }
