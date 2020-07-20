@@ -1,8 +1,8 @@
 package com.discovery.controller;
 
-import com.discovery.dto.PlanetResponse;
-import com.discovery.dto.Routes;
-import com.discovery.dto.SearchParams;
+import com.discovery.model.PlanetResponse;
+import com.discovery.model.Routes;
+import com.discovery.model.SearchParams;
 import com.discovery.exception.TechnicalException;
 import com.discovery.service.RouteService;
 import io.swagger.annotations.ApiOperation;

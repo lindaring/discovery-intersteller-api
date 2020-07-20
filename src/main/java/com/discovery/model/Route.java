@@ -1,10 +1,9 @@
-package com.discovery.dto;
+package com.discovery.model;
 
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
-import java.util.Set;
 
 @Data
 @Builder

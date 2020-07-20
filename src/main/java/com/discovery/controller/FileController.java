@@ -1,6 +1,6 @@
 package com.discovery.controller;
 
-import com.discovery.dto.PlanetResponse;
+import com.discovery.model.PlanetResponse;
 import com.discovery.exception.BusinessRuleException;
 import com.discovery.exception.PlanetImportFailed;
 import com.discovery.exception.TechnicalException;

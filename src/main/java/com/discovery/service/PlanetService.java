@@ -1,7 +1,7 @@
 package com.discovery.service;
 
-import com.discovery.dto.Planet;
-import com.discovery.dto.PlanetImport;
+import com.discovery.model.Planet;
+import com.discovery.model.PlanetImport;
 import com.discovery.entity.PlanetEntity;
 import com.discovery.entity.RouteEntity;
 import com.discovery.exception.PlanetNotFound;

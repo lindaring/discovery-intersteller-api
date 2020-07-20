@@ -1,6 +1,6 @@
 package com.discovery.service;
 
-import com.discovery.dto.PlanetImport;
+import com.discovery.model.PlanetImport;
 import com.discovery.exception.PlanetImportFailed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

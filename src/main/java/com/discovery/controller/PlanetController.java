@@ -1,8 +1,8 @@
 package com.discovery.controller;
 
-import com.discovery.dto.Planet;
-import com.discovery.dto.PlanetImport;
-import com.discovery.dto.PlanetResponse;
+import com.discovery.model.Planet;
+import com.discovery.model.PlanetImport;
+import com.discovery.model.PlanetResponse;
 import com.discovery.exception.BusinessRuleException;
 import com.discovery.exception.PlanetNotFound;
 import com.discovery.exception.TechnicalException;

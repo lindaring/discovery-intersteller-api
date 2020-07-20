@@ -1,4 +1,4 @@
-package com.discovery.dto;
+package com.discovery.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

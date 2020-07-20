@@ -1,9 +1,9 @@
 package com.discovery.service;
 
-import com.discovery.dto.Planet;
-import com.discovery.dto.Route;
-import com.discovery.dto.Routes;
-import com.discovery.dto.SearchParams;
+import com.discovery.model.Planet;
+import com.discovery.model.Route;
+import com.discovery.model.Routes;
+import com.discovery.model.SearchParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
