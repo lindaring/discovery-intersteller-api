@@ -1,7 +1,9 @@
 package com.discovery.service;
 
 import com.discovery.dto.PlanetImport;
+import com.discovery.exception.PlanetImportFailed;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class FileService {
@@ -29,24 +32,29 @@ public class FileService {
 
     private final PlanetService planetService;
 
-    private List<PlanetImport> getPlanetsTrafficFromFile(MultipartFile file) throws IOException {
-        XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
-        XSSFSheet worksheet = workbook.getSheetAt(DISTANCE_SHEET_INDEX);
+    private List<PlanetImport> getPlanetsTrafficFromFile(MultipartFile file) throws PlanetImportFailed {
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+            XSSFSheet worksheet = workbook.getSheetAt(DISTANCE_SHEET_INDEX);
 
-        List<PlanetImport> planets = new ArrayList<>();
+            List<PlanetImport> planets = new ArrayList<>();
 
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-            XSSFRow row = worksheet.getRow(i);
-            planets.add(PlanetImport.builder()
-                    .routeId((long) row.getCell(ROUTE_ID_COLUMN_INDEX).getNumericCellValue())
-                    .originShort(row.getCell(ORIGIN_COLUMN_INDEX).getStringCellValue())
-                    .destinationShort(row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue())
-                    .distance(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue())
-                    .build());
+            for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+                XSSFRow row = worksheet.getRow(i);
+                planets.add(PlanetImport.builder()
+                        .routeId((long) row.getCell(ROUTE_ID_COLUMN_INDEX).getNumericCellValue())
+                        .originShort(row.getCell(ORIGIN_COLUMN_INDEX).getStringCellValue())
+                        .destinationShort(row.getCell(DESTINATION_COLUMN_INDEX).getStringCellValue())
+                        .distance(row.getCell(DISTANCE_COLUMN_INDEX).getNumericCellValue())
+                        .build());
+            }
+            determineTraffic(file, planets);
+            determineFullNames(file, planets);
+            return planets;
+        } catch (IOException e) {
+            log.error("Failed to import planet data.", e);
+            throw new PlanetImportFailed("Failed to import planet data. File format may be incorrect");
         }
-        determineTraffic(file, planets);
-        determineFullNames(file, planets);
-        return planets;
     }
 
     private void determineTraffic(MultipartFile file, List<PlanetImport> planets) throws IOException {
@@ -85,7 +93,7 @@ public class FileService {
         }
     }
 
-    public void importPlanets(MultipartFile file) throws IOException {
+    public void importPlanets(MultipartFile file) throws PlanetImportFailed {
         List<PlanetImport> planets = getPlanetsTrafficFromFile(file);
         planetService.purgePlanets();
         planetService.persistPlanets(planets);
