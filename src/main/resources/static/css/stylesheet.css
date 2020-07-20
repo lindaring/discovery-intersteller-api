@@ -69,3 +69,41 @@ body {
 .nonShortest {
     background: white;
 }
+.error {
+    border: 1px solid red;
+    padding: 10px;
+    border-radius: 5px;
+    background: #ffe6ea;
+    color: red;
+}
+select {
+    padding: 5px;
+}
+table {
+    border-collapse: collapse;
+    border-radius: 5px;
+}
+table th {
+    text-align: center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: #004b8d;
+    color: white;
+}
+table tr:hover {
+    background-color: #f2f2f2;
+}
+table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+.column-two {
+    width: 40%;
+    float: left;
+}
+.column-two img {
+    height: 400px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-left: 15px;
+}

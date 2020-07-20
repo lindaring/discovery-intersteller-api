@@ -10,13 +10,15 @@
     <div id="header">
         <div class="center-container">
             <div id="logo">
-                <img src="images/logo-color.svg" alt="Discovery">
+                <a href="/">
+                    <img src="images/logo-color.svg" alt="Discovery">
+                </a>
             </div>
             <div id="links">
                 <ul>
-                    <li><a href="#">Shortest Route</a></li>
-                    <li><a href="#">Quickest Route</a></li>
-                    <li><a href="#">Import Routes</a></li>
+                    <li><a href="/">Shortest Route</a></li>
+                    <li><a href="/">Quickest Route</a></li>
+                    <li><a href="/upload">Import Routes</a></li>
                 </ul>
             </div>
         </div>
@@ -24,7 +26,7 @@
     <div class="center-container">
         <div class="content">
             <h1>Import Planets From Excel</h1>
-            <p th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
+            <p class="error" th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
             <form action="#" th:action="@{/import}" method="post" enctype="multipart/form-data">
                 <input type="file" name="file" id="file" />
                 <br/><br/><br/>

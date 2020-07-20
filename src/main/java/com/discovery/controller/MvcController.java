@@ -29,15 +29,23 @@ public class MvcController {
     public String indexPage(Model model) {
         // Populate dropdowns
         planetNames = planetService.getPlanetNames();
-        if (planetNames.isEmpty()) {
+        if (planetNames == null || planetNames.isEmpty()) {
             return "upload";
         }
         model.addAttribute("planets", planetNames);
         return "index";
     }
 
+    @GetMapping("/upload")
+    public String uploadPage(Model model) {
+        return "upload";
+    }
+
     @PostMapping("/result")
     public String resultPage(Model model, HttpServletRequest request) {
+        if (planetNames == null || planetNames.isEmpty()) {
+            return "upload";
+        }
         String fromNode = request.getParameter("fromNode");
         String toNode = request.getParameter("toNode");
 
@@ -59,7 +67,7 @@ public class MvcController {
     public String uploadFile(Model model, @RequestParam("file") MultipartFile file) throws PlanetImportFailed {
         // Validate file type
         if (!file.getOriginalFilename().endsWith(".xls") && !file.getOriginalFilename().endsWith(".xlsx")) {
-            model.addAttribute("errorMessage", "File type not supported. Select (.xls) or (.xlsx) file.");
+            model.addAttribute("errorMessage", "File type not supported. Select a (.xls) or (.xlsx) file.");
             return "upload";
         }
 
@@ -68,7 +76,7 @@ public class MvcController {
 
         // Populate dropdowns
         planetNames = planetService.getPlanetNames();
-        if (planetNames.isEmpty()) {
+        if (planetNames == null || planetNames.isEmpty()) {
             return "upload";
         }
         model.addAttribute("planets", planetNames);
