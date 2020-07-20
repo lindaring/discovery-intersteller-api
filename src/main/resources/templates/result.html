@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Discovery Interstellar</title>
+    <style>
+        .shortest {
+            background: lightgreen;
+        }
+        .nonShortest {
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Result</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Possible Routes (Shortest Highlight)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="route : ${routes}">
+                <td th:text="${route.getRoutePath()}"
+                th:classappend="${route.isShortest()} ? shortest : nonShortest"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

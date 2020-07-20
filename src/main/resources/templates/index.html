@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Discovery Interstellar</title>
 </head>
 <body>
-    <h1>Happy!!!</h1>
+    <h1>Get Shortest Path</h1>
+    <p th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
+    <form action="#" th:action="@{/result}" method="post">
+        <label for="fromNode">Where are you from?</label>
+        <select id="fromNode" name="fromNode">
+            <option th:each="planet : ${planets}" th:value="${planet.getKey()}" th:text="${'(' + planet.getKey() + ') ' + planet.getValue()}"></option>
+        </select>
+        <br />
+        <br />
+        <label for="toNode">Where are you going?</label>
+        <select id="toNode" name="toNode">
+            <option th:each="planet : ${planets}" th:value="${planet.getKey()}" th:text="${'(' + planet.getKey() + ') ' + planet.getValue()}"></option>
+        </select>
+        <br />
+        <br />
+        <input type="submit" value="Submit" />
+    </form>
 </body>
 </html>

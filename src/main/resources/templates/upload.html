@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Discovery Interstellar</title>
+</head>
+<body>
+    <h1>Import Planets From Excel</h1>
+    <p th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
+    <form action="#" th:action="@{/import}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" id="file" /><br/>
+        <br/>
+        <input type="submit" value="Submit" />
+    </form>
+</body>
+</html>

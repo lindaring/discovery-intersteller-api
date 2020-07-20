@@ -3,6 +3,7 @@ package com.discovery.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Iterator;
 import java.util.Map;
 
 @Data
@@ -13,4 +14,15 @@ public class Route {
     private double traffic;
     private boolean isShortest;
     private boolean isQuickest;
+    public String getRoutePath() {
+        StringBuilder path = new StringBuilder();
+        for (Iterator<String> iterator = route.keySet().iterator(); iterator.hasNext(); ) {
+            String node = iterator.next();
+            path.append(node);
+            if (iterator.hasNext()) {
+                path.append(" => ");
+            }
+        }
+        return path.toString();
+    }
 }
