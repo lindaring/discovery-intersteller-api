@@ -2,14 +2,20 @@ package com.discovery.controller;
 
 import com.discovery.dto.Planet;
 import com.discovery.dto.PlanetImport;
+import com.discovery.dto.PlanetResponse;
+import com.discovery.exception.BusinessRuleException;
 import com.discovery.exception.PlanetNotFound;
+import com.discovery.exception.TechnicalException;
 import com.discovery.service.PlanetService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,28 +28,46 @@ import java.util.List;
 public class PlanetController {
     private final PlanetService planetService;
 
-    @GetMapping
-    public List<Planet> getAllPlanets() {
-        return planetService.getAllPlanets();
-    }
-
-    @GetMapping("/{id}")
-    public PlanetImport getPlanet(@PathVariable("id") long id) throws PlanetNotFound {
-        return planetService.getPlanetWithDestinations(id);
+    @GetMapping("/{shortName}")
+    @ApiOperation(
+        value = "Get a planet's information using it's short name (node).",
+        response = PlanetResponse.class)
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Ok", response = PlanetResponse.class),
+        @ApiResponse(code = 404, message = "Not Found", response = BusinessRuleException.class),
+        @ApiResponse(code = 500, message = "Internal Server Error", response = TechnicalException.class)})
+    public Planet getPlanet(@PathVariable("shortName") String shortName) throws PlanetNotFound {
+        return planetService.getPlanet(shortName);
     }
 
     @PostMapping
-    public boolean addPlanet(@RequestBody PlanetImport PlanetImport) {
-        return planetService.insertPlanet(PlanetImport);
+    @ApiOperation(
+        value = "Import planet names, source, destination, traffic delay and distance.",
+        response = PlanetResponse.class)
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Ok", response = PlanetResponse.class),
+        @ApiResponse(code = 500, message = "Internal Server Error", response = TechnicalException.class)})
+    public ResponseEntity<PlanetResponse> addPlanet(@RequestBody List<PlanetImport> planetList) {
+        planetService.persistPlanets(planetList);
+        return ResponseEntity.ok(PlanetResponse.builder()
+                .message("Imported successfully")
+                .success(true)
+                .build());
     }
 
-    @PutMapping
-    public boolean updatePlanet(@RequestBody PlanetImport PlanetImport) throws PlanetNotFound {
-        return planetService.updatePlanet(PlanetImport);
-    }
-
-    @DeleteMapping("/{id}")
-    public boolean removePlanet(@PathVariable("id") long id) throws PlanetNotFound {
-        return planetService.deletePlanet(id);
+    @DeleteMapping
+    @PostMapping
+    @ApiOperation(
+        value = "Delete all entries in the database.",
+        response = PlanetResponse.class)
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Ok", response = PlanetResponse.class),
+        @ApiResponse(code = 500, message = "Internal Server Error", response = TechnicalException.class)})
+    public ResponseEntity<PlanetResponse> removePlanet() {
+        planetService.purgePlanets();
+        return ResponseEntity.ok(PlanetResponse.builder()
+                .message("Database Purged.")
+                .success(true)
+                .build());
     }
 }

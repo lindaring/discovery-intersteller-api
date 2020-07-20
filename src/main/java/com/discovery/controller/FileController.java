@@ -1,6 +1,6 @@
 package com.discovery.controller;
 
-import com.discovery.dto.PlanetImportResponse;
+import com.discovery.dto.PlanetResponse;
 import com.discovery.exception.BusinessRuleException;
 import com.discovery.exception.PlanetImportFailed;
 import com.discovery.exception.TechnicalException;
@@ -25,15 +25,14 @@ public class FileController {
     @PostMapping("/import")
     @ApiOperation(
         value = "Import planet names, source, destination, traffic delay and distance.",
-        response = PlanetImportResponse.class)
+        response = PlanetResponse.class)
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Ok", response = PlanetImportResponse.class),
+            @ApiResponse(code = 200, message = "Ok", response = PlanetResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = BusinessRuleException.class),
-            @ApiResponse(code = 404, message = "Not Found", response = BusinessRuleException.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = TechnicalException.class)})
-    public ResponseEntity<PlanetImportResponse> importFile(@RequestParam("file") MultipartFile file) throws PlanetImportFailed {
+    public ResponseEntity<PlanetResponse> importFile(@RequestParam("file") MultipartFile file) throws PlanetImportFailed {
         fileService.importPlanets(file);
-        return ResponseEntity.ok(PlanetImportResponse.builder()
+        return ResponseEntity.ok(PlanetResponse.builder()
                 .message("Imported successfully")
                 .success(true)
                 .build());

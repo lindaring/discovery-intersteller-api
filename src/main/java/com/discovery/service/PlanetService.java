@@ -5,14 +5,12 @@ import com.discovery.dto.PlanetImport;
 import com.discovery.entity.PlanetEntity;
 import com.discovery.entity.RouteEntity;
 import com.discovery.exception.PlanetNotFound;
-import com.discovery.mapper.PlanetMapper;
 import com.discovery.repository.PlanetRepository;
 import com.discovery.repository.RouteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +23,6 @@ import java.util.Set;
 public class PlanetService {
     private final PlanetRepository planetRepository;
     private final RouteRepository routeRepository;
-    private final PlanetMapper planetMapper;
 
     public void persistPlanets(List<PlanetImport> planets) {
         planets.forEach(p -> {
@@ -105,49 +102,12 @@ public class PlanetService {
         planet.setChildren(children);
     }
 
-    public List<Planet> getAllPlanets() {
-        List<Planet> planets = new ArrayList<>();
-//        planetRepository.findAll()
-//                .forEach(p -> planets.add(planetMapper.entityToDto(p)));
-        return planets;
-    }
-
-    public PlanetEntity getPlanetEntity(long routeId) throws PlanetNotFound {
-//        Optional<PlanetEntity> planetOptional = planetRepository.findById(routeId);
-        //return planetOptional.orElseThrow(PlanetNotFound::new);
-        return null;
-    }
-
-    public PlanetImport getPlanetWithDestinations(long routeId) throws PlanetNotFound {
-        PlanetEntity planetEntity = getPlanetEntity(routeId);
-        //return planetMapper.entityToDto(planetEntity);
-        return new PlanetImport();
-    }
-
-    public boolean insertPlanet(PlanetImport PlanetImport) {
-        PlanetEntity entity = planetMapper.dtoToEntity(PlanetImport);
-        //planetRepository.save(entity);
-        return true;
-    }
-
-    public boolean insertPlanetBulk(List<PlanetImport> planets) {
-        persistPlanets(planets);
-        return true;
-    }
-
-    public boolean updatePlanet(PlanetImport PlanetImport) throws PlanetNotFound {
-        PlanetEntity planetEntity = getPlanetEntity(PlanetImport.getRouteId());
-        //Todo
-        //planetEntity.setOrigin(PlanetImport.getOrigin());
-        //planetEntity.setDestination(PlanetImport.getDestination());
-        //planetRepository.save(planetEntity);
-        return true;
-    }
-
-    public boolean deletePlanet(long routeId) throws PlanetNotFound {
-        PlanetEntity planetEntity = getPlanetEntity(routeId);
-        //planetRepository.delete(planetEntity);
-        return true;
+    public Planet getPlanet(String planetShortName) throws PlanetNotFound {
+        Planet planet = getPlanetWithDestinations(planetShortName);
+        if (planet == null) {
+            throw new PlanetNotFound();
+        }
+        return planet;
     }
 
     public void purgePlanets() {

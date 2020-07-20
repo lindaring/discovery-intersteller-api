@@ -7,4 +7,5 @@ import java.util.Set;
 
 public interface RouteRepository extends CrudRepository<RouteEntity, Long> {
     Set<RouteEntity> findBySource_ShortName(String shortName);
+    Set<RouteEntity> findBySource_PlanetId(long planetId);
 }

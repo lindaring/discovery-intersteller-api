@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-public class PlanetImportResponse {
+public class PlanetResponse {
     private String message;
     private boolean success;
 }
