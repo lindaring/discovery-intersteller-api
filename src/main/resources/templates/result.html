@@ -16,8 +16,8 @@
             </div>
             <div id="links">
                 <ul>
-                    <li><a href="/">Shortest Route</a></li>
-                    <li><a href="/">Quickest Route</a></li>
+                    <li><a href="/?type=shortest">Shortest Route</a></li>
+                    <li><a href="/?type=fastest">Quickest Route</a></li>
                     <li><a href="/upload">Import Routes</a></li>
                 </ul>
             </div>
@@ -36,7 +36,7 @@
                     <tbody>
                         <tr th:each="route : ${routes}">
                             <td th:text="${route.getRoutePath()}"
-                            th:classappend="${route.isShortest()} ? shortest : nonShortest"></td>
+                            th:classappend="${route.isHighlight()} ? shortest : nonShortest"></td>
                         </tr>
                     </tbody>
                 </table>

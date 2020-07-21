@@ -14,6 +14,7 @@ public class Route {
     private double traffic;
     private boolean isShortest;
     private boolean isQuickest;
+    private boolean highlight;
     public String getRoutePath() {
         StringBuilder path = new StringBuilder();
         for (Iterator<String> iterator = route.keySet().iterator(); iterator.hasNext(); ) {

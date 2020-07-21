@@ -5,8 +5,19 @@
     <title>Discovery Interstellar</title>
     <link rel="icon" href="images/favicon.png" type="image/x-png" />
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+    <script>
+        function onLoad() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type      = urlParams.get('type');
+            if (type.toLowerCase() === 'fastest') {
+                document.getElementById('fastest').checked = true;
+            } else {
+                document.getElementById('shortest').checked = true;
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="onLoad()">
     <div id="header">
         <div class="center-container">
             <div id="logo">
@@ -16,8 +27,8 @@
             </div>
             <div id="links">
                 <ul>
-                    <li><a href="/">Shortest Route</a></li>
-                    <li><a href="/">Quickest Route</a></li>
+                    <li><a href="/?type=shortest">Shortest Route</a></li>
+                    <li><a href="/?type=fastest">Quickest Route</a></li>
                     <li><a href="/upload">Import Routes</a></li>
                 </ul>
             </div>
@@ -39,6 +50,11 @@
                     <option th:each="planet : ${planets}" th:value="${planet.getKey()}" th:text="${'(' + planet.getKey() + ') ' + planet.getValue()}"></option>
                 </select>
                 <br />
+                <br />
+                <input type="radio" id="shortest" name="type" value="shortest" checked>
+                <label for="shortest">Shortest</label><br>
+                <input type="radio" id="fastest" name="type" value="fastest">
+                <label for="fastest">Fastest</label><br>
                 <br />
                 <input type="submit" value="Submit" class="btn" />
             </form>

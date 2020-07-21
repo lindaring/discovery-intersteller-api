@@ -1,6 +1,7 @@
 package com.discovery.controller;
 
 import com.discovery.exception.PlanetImportFailed;
+import com.discovery.model.Route;
 import com.discovery.model.Routes;
 import com.discovery.model.SearchParams;
 import com.discovery.service.FileService;
@@ -48,6 +49,7 @@ public class MvcController {
         }
         String fromNode = request.getParameter("fromNode");
         String toNode = request.getParameter("toNode");
+        String type = request.getParameter("type");
 
         if (fromNode.equals(toNode)) {
             model.addAttribute("errorMessage", "From planet must not be the same as to planet");
@@ -60,6 +62,20 @@ public class MvcController {
                 .destination(toNode)
                 .build());
         model.addAttribute("routes", routes.getRouteList());
+
+        if ("fastest".equalsIgnoreCase(type)) {
+            routes.getRouteList()
+                    .stream()
+                    .filter(Route::isQuickest)
+                    .findFirst()
+                    .ifPresent(r -> r.setHighlight(true));
+        } else {
+            routes.getRouteList()
+                    .stream()
+                    .filter(Route::isShortest)
+                    .findFirst()
+                    .ifPresent(r -> r.setHighlight(true));
+        }
         return "result";
     }
 
